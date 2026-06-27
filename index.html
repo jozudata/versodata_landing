@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Versodata Reminder — WhatsApp reminders that stop no-shows</title>
+<meta name="description" content="Versodata Reminder messages your clients on WhatsApp before their appointment, so a forgotten visit doesn't become an empty chair." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#050B16;
+    --panel:#0E1B33;
+    --panel-2:#0B1730;
+    --hairline:#1C2B4D;
+    --paper:#F6F8FC;
+    --paper-card:#FFFFFF;
+    --ink:#F4F7FC;
+    --ink-soft:#B9C3DC;
+    --slate:#7C88A6;
+    --ink-dark:#0E1726;
+    --muted-dark:#5B6678;
+    --brand:#1B6FFF;
+    --brand-deep:#155FE0;
+    --signal:#22C2FF;
+    --ok:#1FBE7C;
+    --tint:#E8F0FF;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --maxw:1140px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:var(--void);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+  section{padding:108px 0;}
+  @media (max-width:720px){ section{padding:72px 0;} }
+
+  h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.08;letter-spacing:-0.01em;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--signal);
+    margin:0 0 14px;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 4px rgba(34,194,255,0.18);}
+  .section-on-paper .eyebrow{color:var(--brand-deep);}
+  .section-on-paper .eyebrow::before{background:var(--brand-deep);box-shadow:0 0 0 4px rgba(27,111,255,0.14);}
+
+  .section-on-paper{background:var(--paper);color:var(--ink-dark);}
+  .section-on-paper .sub{color:var(--muted-dark);}
+  .lede{font-size:18px;line-height:1.6;color:var(--ink-soft);max-width:560px;margin:18px 0 0;}
+  .section-on-paper .lede{color:var(--muted-dark);}
+
+  .btn{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:15px;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:14px 24px;
+    border-radius:99px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary{background:var(--brand);color:#fff;box-shadow:0 8px 24px -8px rgba(27,111,255,0.55);}
+  .btn-primary:hover{background:var(--brand-deep);transform:translateY(-1px);}
+  .btn-ghost{background:transparent;border-color:var(--hairline);color:var(--ink-soft);}
+  .btn-ghost:hover{border-color:var(--signal);color:var(--ink);}
+  .section-on-paper .btn-ghost{border-color:#D8E2F4;color:var(--muted-dark);}
+  .section-on-paper .btn-ghost:hover{border-color:var(--brand);color:var(--ink-dark);}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    padding:18px 0;
+    transition:background .25s ease, border-color .25s ease, padding .25s ease;
+    border-bottom:1px solid transparent;
+  }
+  header.scrolled{
+    background:rgba(5,11,22,0.86);
+    backdrop-filter:blur(10px);
+    border-color:var(--hairline);
+    padding:13px 0;
+  }
+  nav{display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:-0.01em;}
+  .logo .data{color:var(--signal);}
+  .navlinks{display:flex;gap:30px;font-size:14.5px;color:var(--ink-soft);}
+  .navlinks a:hover{color:var(--ink);}
+  @media (max-width:720px){ .navlinks{display:none;} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:168px 0 100px;
+    background:
+      radial-gradient(680px 420px at 82% -10%, rgba(27,111,255,0.18), transparent 60%),
+      radial-gradient(520px 380px at 5% 0%, rgba(34,194,255,0.10), transparent 60%),
+      var(--void);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center;}
+  @media (max-width:880px){ .hero-grid{grid-template-columns:1fr;} }
+  .hero h1{font-size:50px;font-weight:700;}
+  @media (max-width:880px){ .hero h1{font-size:38px;} }
+  .hero-ctas{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;}
+
+  /* ---------- PHONE MOCKUP (signature element) ---------- */
+  .phone{
+    width:300px;max-width:100%;margin:0 auto;
+    background:#08101F;
+    border:1px solid #1C2B4D;
+    border-radius:30px;
+    padding:10px;
+    box-shadow:0 40px 80px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02);
+  }
+  .phone-screen{
+    background:linear-gradient(180deg,#0B1426,#070C16);
+    border-radius:22px;
+    overflow:hidden;
+    min-height:430px;
+    display:flex;flex-direction:column;
+  }
+  .phone-bar{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 16px;border-bottom:1px solid #16223E;
+    font-size:13px;color:var(--ink-soft);
+  }
+  .phone-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--signal));flex:none;}
+  .phone-name{font-weight:600;color:var(--ink);font-size:13.5px;}
+  .phone-status{font-size:11px;color:var(--ok);font-family:var(--font-mono);}
+  .phone-body{flex:1;padding:18px 14px;display:flex;flex-direction:column;gap:10px;justify-content:flex-end;}
+  .bubble{max-width:84%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.45;opacity:0;transform:translateY(8px);transition:opacity .35s ease, transform .35s ease;}
+  .bubble.show{opacity:1;transform:translateY(0);}
+  .bubble.bot{background:#16223E;color:var(--ink);align-self:flex-start;border-bottom-left-radius:4px;}
+  .bubble.user{background:var(--brand);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+  .bubble .ts{display:block;margin-top:5px;font-family:var(--font-mono);font-size:10px;opacity:0.55;}
+  .quickreplies{display:flex;gap:8px;opacity:0;transition:opacity .3s ease;}
+  .quickreplies.show{opacity:1;}
+  .qr-btn{font-family:var(--font-body);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:99px;border:1px solid #2A3B63;color:var(--signal);background:transparent;}
+  .qr-btn.tapped{background:var(--brand);color:#fff;border-color:var(--brand);}
+  .typing{display:flex;gap:4px;align-self:flex-start;background:#16223E;padding:11px 14px;border-radius:14px;border-bottom-left-radius:4px;opacity:0;transition:opacity .25s ease;}
+  .typing.show{opacity:1;}
+  .typing span{width:6px;height:6px;border-radius:50%;background:var(--ink-soft);animation:blink 1.2s infinite ease-in-out;}
+  .typing span:nth-child(2){animation-delay:.2s;}
+  .typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+
+  /* ---------- PROBLEM ---------- */
+  .stat-card{
+    background:var(--void);
+    border-radius:18px;
+    padding:36px;
+    color:var(--ink);
+  }
+  .stat-num{font-family:var(--font-display);font-size:40px;font-weight:700;color:var(--signal);margin:18px 0 6px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px;}
+  @media (max-width:880px){ .grid-2{grid-template-columns:1fr;} }
+  .who-list{display:flex;flex-direction:column;gap:14px;}
+  .who-card{
+    background:var(--paper-card);
+    border-radius:14px;
+    padding:20px 22px;
+    display:flex;gap:16px;align-items:flex-start;
+    box-shadow:0 10px 30px -18px rgba(10,23,48,0.18);
+  }
+  .who-icon{width:42px;height:42px;border-radius:50%;background:var(--tint);display:flex;align-items:center;justify-content:center;flex:none;}
+  .who-icon svg{width:20px;height:20px;}
+  .who-card h3{font-family:var(--font-body);font-size:15.5px;font-weight:700;}
+  .who-card p{margin:4px 0 0;font-size:13.5px;color:var(--muted-dark);}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;}
+  @media (max-width:880px){ .steps{grid-template-columns:1fr;} }
+  .step{background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:28px;}
+  .step-num{font-family:var(--font-mono);color:var(--signal);font-size:13px;letter-spacing:.06em;}
+  .step h3{font-size:18px;margin:14px 0 8px;}
+  .step p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.55;}
+  .note-bar{
+    margin-top:28px;display:flex;align-items:center;gap:12px;
+    background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:16px 20px;
+    color:var(--ink-soft);font-size:13.5px;font-style:italic;
+  }
+
+  /* ---------- COMPARISON ---------- */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:44px;}
+  @media (max-width:780px){ .compare{grid-template-columns:1fr;} }
+  .compare-col{border-radius:16px;padding:30px;}
+  .compare-col.muted{background:#EDEFF4;color:var(--muted-dark);}
+  .compare-col.brand{background:var(--void);color:var(--ink);}
+  .compare-col h3{font-family:var(--font-body);font-size:16px;font-weight:700;margin-bottom:18px;}
+  .compare-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;font-size:14px;line-height:1.5;}
+  .compare-row svg{flex:none;margin-top:2px;}
+  .compare-foot{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-size:12.5px;font-style:italic;opacity:.8;}
+
+  /* ---------- TRUST ---------- */
+  .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:48px;}
+  @media (max-width:880px){ .trust-grid{grid-template-columns:1fr;} }
+  .trust-card{background:var(--panel-2);border:1px solid var(--hairline);border-radius:14px;padding:24px;}
+  .trust-card h3{font-family:var(--font-body);font-size:15.5px;color:var(--signal);margin-bottom:8px;}
+  .trust-card p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+
+  /* ---------- REQUIREMENTS ---------- */
+  .req-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:44px;}
+  @media (max-width:780px){ .req-grid{grid-template-columns:1fr;} }
+  .req-card{background:var(--paper-card);border-radius:16px;padding:28px;box-shadow:0 10px 30px -18px rgba(10,23,48,0.18);}
+  .req-icon{width:48px;height:48px;border-radius:50%;background:var(--tint);display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+  .req-card h3{font-family:var(--font-body);font-size:16px;font-weight:700;}
+  .req-card p{font-size:13.5px;color:var(--muted-dark);line-height:1.55;margin:8px 0 0;}
+  .req-card a{color:var(--brand-deep);font-weight:600;text-decoration:underline;}
+
+  /* ---------- PRICING ---------- */
+  .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px;max-width:760px;}
+  @media (max-width:780px){ .price-grid{grid-template-columns:1fr;} }
+  .price-card{border-radius:18px;padding:34px;}
+  .price-card.light{background:var(--paper-card);color:var(--ink-dark);box-shadow:0 10px 30px -18px rgba(10,23,48,0.18);}
+  .price-card.dark{background:var(--void);color:var(--ink);}
+  .plan-name{font-family:var(--font-body);font-weight:700;font-size:17px;}
+  .price-amt{font-family:var(--font-display);font-size:38px;font-weight:700;margin:18px 0 2px;}
+  .price-card.light .price-amt{color:var(--brand);}
+  .price-card.dark .price-amt{color:var(--signal);}
+  .price-sub{font-family:var(--font-mono);font-size:11.5px;color:var(--muted-dark);}
+  .price-card.dark .price-sub{color:var(--ink-soft);}
+  .price-divider{height:1px;background:#E2E8F0;margin:20px 0;}
+  .price-card.dark .price-divider{background:var(--hairline);}
+  .price-mo{font-size:19px;font-weight:700;}
+  .price-desc{font-size:13.5px;margin-top:14px;color:var(--muted-dark);}
+  .price-card.dark .price-desc{color:var(--ink-soft);}
+  .price-foot{margin-top:22px;font-size:12.5px;font-style:italic;color:var(--muted-dark);max-width:640px;}
+
+  /* ---------- FAQ ---------- */
+  .faq-list{margin-top:40px;display:flex;flex-direction:column;gap:10px;max-width:760px;}
+  details{background:var(--paper-card);border-radius:12px;padding:6px 22px;box-shadow:0 6px 20px -16px rgba(10,23,48,0.18);}
+  summary{cursor:pointer;padding:16px 0;font-weight:600;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+";font-family:var(--font-mono);font-size:18px;color:var(--brand);transition:transform .2s ease;}
+  details[open] summary::after{transform:rotate(45deg);}
+  details p{margin:0 0 18px;color:var(--muted-dark);font-size:14px;line-height:1.6;}
+
+  /* ---------- CONTACT ---------- */
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:48px;align-items:start;}
+  @media (max-width:880px){ .contact-grid{grid-template-columns:1fr;} }
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;font-family:var(--font-mono);letter-spacing:.04em;}
+  .field input,.field textarea{
+    width:100%;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;
+    padding:12px 14px;color:var(--ink);font-family:var(--font-body);font-size:14.5px;
+  }
+  .field input:focus,.field textarea:focus{outline:2px solid var(--signal);outline-offset:1px;}
+  .field textarea{resize:vertical;min-height:90px;}
+  .contact-note{font-size:12.5px;color:var(--slate);margin-top:10px;}
+  .contact-side{background:var(--panel-2);border:1px solid var(--hairline);border-radius:16px;padding:30px;}
+  .contact-side h3{font-size:18px;margin-bottom:10px;}
+  .contact-side p{color:var(--ink-soft);font-size:14px;line-height:1.6;margin:0 0 22px;}
+
+  footer{background:var(--panel-2);border-top:1px solid var(--hairline);padding:36px 0;}
+  .footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--slate);}
+  .footer-links{display:flex;gap:22px;}
+  .footer-links a:hover{color:var(--ink);}
+
+  /* ---------- PRIVACY VIEW ---------- */
+  #privacy-view{background:var(--paper);color:var(--ink-dark);min-height:100vh;padding-top:140px;}
+  .legal h1{font-size:32px;margin-bottom:6px;}
+  .legal .updated{font-family:var(--font-mono);font-size:12.5px;color:var(--muted-dark);margin-bottom:30px;display:block;}
+  .legal h2{font-size:18px;margin:34px 0 10px;font-family:var(--font-body);}
+  .legal p,.legal li{font-size:15px;line-height:1.7;color:#2A3242;}
+  .legal ul{padding-left:20px;}
+  .legal-banner{
+    background:#FFF4E0;border:1px solid #F0D8A8;color:#7A5A12;
+    border-radius:10px;padding:14px 18px;font-size:13px;margin-bottom:36px;line-height:1.6;
+  }
+  .back-link{display:inline-flex;align-items:center;gap:6px;margin-top:42px;font-weight:600;color:var(--brand);}
+
+  .lang-switch{display:flex;gap:2px;background:var(--panel);border:1px solid var(--hairline);border-radius:99px;padding:3px;margin-right:6px;}
+  .lang-btn{font-family:var(--font-mono);font-size:11.5px;font-weight:500;padding:6px 11px;border-radius:99px;border:none;background:transparent;color:var(--slate);cursor:pointer;transition:background .15s ease,color .15s ease;}
+  .lang-btn.active{background:var(--brand);color:#fff;}
+  .lang-btn:not(.active):hover{color:var(--ink);}
+  .nav-right{display:flex;align-items:center;}
+
+  [hidden]{display:none !important;}
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="wrap">
+    <nav>
+      <a href="#home" class="logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 3L11 3L11 16L20 3L21 21L13 21L13 9L4 21L3 3Z" fill="url(#g1)"/><defs><linearGradient id="g1" x1="3" y1="3" x2="21" y2="21"><stop stop-color="#1B6FFF"/><stop offset="1" stop-color="#22C2FF"/></linearGradient></defs></svg>
+        VERSO<span class="data">DATA</span>
+      </a>
+      <div class="navlinks">
+        <a href="#how" data-i18n="nav_how">How it works</a>
+        <a href="#pricing" data-i18n="nav_pricing">Pricing</a>
+        <a href="#faq" data-i18n="nav_faq">FAQ</a>
+      </div>
+      <div class="nav-right">
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" data-lang="es" onclick="setLang('es')">ES</button>
+          <button class="lang-btn" data-lang="it" onclick="setLang('it')">IT</button>
+        </div>
+        <a href="https://wa.me/393518433102?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Reminder" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="nav_cta">WhatsApp us</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main-view">
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow" data-i18n="hero_eyebrow">WHATSAPP REMINDERS FOR BUSY CALENDARS</p>
+        <h1 data-i18n="hero_h1">Stop losing appointments<br>to forgetting.</h1>
+        <p class="lede" data-i18n="hero_lede">Versodata Reminder messages your clients on WhatsApp before their appointment — so a forgotten visit doesn't become an empty chair.</p>
+        <div class="hero-ctas">
+          <a href="https://wa.me/393518433102?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Reminder" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="hero_cta">Message us on WhatsApp →</a>
+          <a href="#pricing" class="btn btn-ghost" data-i18n="hero_cta2">See pricing</a>
+        </div>
+      </div>
+      <div class="phone" aria-hidden="true">
+        <div class="phone-screen">
+          <div class="phone-bar">
+            <div class="phone-avatar"></div>
+            <div>
+              <div class="phone-name" data-i18n="phone_name">Dr. Rossi's Clinic</div>
+              <div class="phone-status" data-i18n="phone_status">● Reminder sent</div>
+            </div>
+          </div>
+          <div class="phone-body" id="phoneBody">
+            <div class="bubble bot" id="b1"><span data-i18n="chat_b1">Hi Sofia 👋 Reminder: your appointment is tomorrow at 10:00 AM with Dr. Rossi.</span><span class="ts">09:14</span></div>
+            <div class="typing" id="typing1"><span></span><span></span><span></span></div>
+            <div class="quickreplies" id="qr">
+              <button class="qr-btn" id="qrConfirm" data-i18n="chat_confirm">✅ Confirm</button>
+              <button class="qr-btn" id="qrReschedule" data-i18n="chat_reschedule">Reschedule</button>
+            </div>
+            <div class="bubble user" id="b2"><span data-i18n="chat_confirm">✅ Confirm</span><span class="ts">09:15</span></div>
+            <div class="bubble bot" id="b3"><span data-i18n="chat_b3">Perfect — see you tomorrow at 10:00! ✅</span><span class="ts">09:15</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="section-on-paper">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="prob_eyebrow">THE COST OF A NO-SHOW</p>
+      <h2 style="font-size:34px;max-width:620px;" data-i18n="prob_h2">How many appointments do you lose a month to forgetting?</h2>
+      <p class="lede" data-i18n="prob_lede">It's not bad faith. It's forgetting — and in busy, high-volume practices, that adds up to real money.</p>
+
+      <div class="grid-2">
+        <div class="stat-card reveal">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 2C9 2 7 4.5 7 7.5C7 9 6.5 9.5 6 10.5C5.5 11.5 6 13 7.5 13H16.5C18 13 18.5 11.5 18 10.5C17.5 9.5 17 9 17 7.5C17 4.5 15 2 12 2Z" stroke="#22C2FF" stroke-width="1.6"/><path d="M9.5 16C9.5 17.5 10.5 18.5 12 18.5C13.5 18.5 14.5 17.5 14.5 16" stroke="#22C2FF" stroke-width="1.6"/></svg>
+          <div style="font-family:var(--font-body);font-weight:700;font-size:19px;margin-top:14px;" data-i18n="prob_stat1">8 no-shows / month</div>
+          <div style="color:var(--slate);font-size:13.5px;margin-top:4px;" data-i18n="prob_stat2">at €50 lost per missed appointment</div>
+          <div class="stat-num">≈ €400/mo</div>
+          <div style="color:var(--slate);font-size:13px;" data-i18n="prob_stat4">almost €5,000 a year, gone quietly</div>
+        </div>
+
+        <div class="who-list">
+          <div class="who-card reveal">
+            <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C9.5 3 7.5 5 7.5 7.8C7.5 9.2 8 9.8 8.5 10.6L9.7 19.3C9.85 20.4 10.3 21 11 21C11.7 21 12 20.2 12 19C12 20.2 12.3 21 13 21C13.7 21 14.15 20.4 14.3 19.3L15.5 10.6C16 9.8 16.5 9.2 16.5 7.8C16.5 5 14.5 3 12 3Z" stroke="#1B6FFF" stroke-width="1.5"/></svg></div>
+            <div><h3 data-i18n="prob_who1_t">Dental & medical clinics</h3><p data-i18n="prob_who1_d">Expensive slot, booked weeks in advance.</p></div>
+          </div>
+          <div class="who-card reveal">
+            <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#1B6FFF" stroke-width="1.5"/><path d="M12 8V12L15 14" stroke="#1B6FFF" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div><h3 data-i18n="prob_who2_t">Aesthetic & multi-practitioner physio</h3><p data-i18n="prob_who2_d">High volume, increasingly impersonal scheduling.</p></div>
+          </div>
+          <div class="who-card reveal">
+            <div class="who-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="9" width="16" height="7" rx="2" stroke="#1B6FFF" stroke-width="1.5"/><circle cx="8" cy="17" r="1.6" fill="#1B6FFF"/><circle cx="16" cy="17" r="1.6" fill="#1B6FFF"/></svg></div>
+            <div><h3 data-i18n="prob_who3_t">Driving schools, tattoo studios, labs</h3><p data-i18n="prob_who3_d">No upfront deposit to discourage a no-show.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="how_eyebrow">HOW IT WORKS</p>
+      <h2 style="font-size:34px;" data-i18n="how_h2">You keep booking the way you always have.</h2>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">01</div>
+          <h3 data-i18n="how1_t">Reads your calendar</h3>
+          <p data-i18n="how1_d">Pulls the appointment that's already saved in your calendar — nothing new to enter.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">02</div>
+          <h3 data-i18n="how2_t">Sends the WhatsApp reminder</h3>
+          <p data-i18n="how2_d">Messages your client before the appointment, in their own language.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">03</div>
+          <h3 data-i18n="how3_t">Confirms or cancels</h3>
+          <p data-i18n="how3_d">The client replies, and if they cancel, you find out early enough to fill the slot.</p>
+        </div>
+      </div>
+      <div class="note-bar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2.5C6.8 2.5 2.5 6.3 2.5 11.1C2.5 13.6 3.7 15.9 5.7 17.5L4.8 21L8.6 19.4C9.7 19.7 10.8 19.8 12 19.8C17.2 19.8 21.5 16 21.5 11.1C21.5 6.3 17.2 2.5 12 2.5Z" stroke="#22C2FF" stroke-width="1.5"/></svg>
+        <span data-i18n="how_note">It never touches your personal WhatsApp or reads your private chats — it only handles reminders.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="section-on-paper" id="compare">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="cmp_eyebrow">WHY NOT JUST USE GOOGLE CALENDAR?</p>
+      <h2 style="font-size:34px;" data-i18n="cmp_h2">Google already reminds people. So why this?</h2>
+      <div class="compare">
+        <div class="compare-col muted reveal">
+          <h3 data-i18n="cmp_col1_h">Google Calendar</h3>
+          <div class="compare-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="#94A0B8" stroke-width="2" stroke-linecap="round"/></svg> <span data-i18n="cmp_col1_r1">Notifies the owner, not the client</span></div>
+          <div class="compare-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="#94A0B8" stroke-width="2" stroke-linecap="round"/></svg> <span data-i18n="cmp_col1_r2">One-way notice, no reply possible</span></div>
+          <div class="compare-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="#94A0B8" stroke-width="2" stroke-linecap="round"/></svg> <span data-i18n="cmp_col1_r3">The client can't confirm or cancel</span></div>
+        </div>
+        <div class="compare-col brand reveal">
+          <h3 data-i18n="cmp_col2_h">Versodata Reminder</h3>
+          <div class="compare-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13L9.5 17.5L19 7" stroke="#22C2FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <span data-i18n="cmp_col2_r1">Notifies the client, on WhatsApp</span></div>
+          <div class="compare-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13L9.5 17.5L19 7" stroke="#22C2FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <span data-i18n="cmp_col2_r2">The client confirms or cancels</span></div>
+          <div class="compare-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13L9.5 17.5L19 7" stroke="#22C2FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <span data-i18n="cmp_col2_r3">A cancellation gives you time to refill the slot</span></div>
+          <div class="compare-foot" data-i18n="cmp_foot">Keep your own number and the app you already use — this runs on top, nothing to migrate.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <section>
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="trust_eyebrow">PRIVACY</p>
+      <h2 style="font-size:34px;max-width:560px;" data-i18n="trust_h2">Your conversations stay yours.</h2>
+      <p class="lede" data-i18n="trust_lede">The system only handles bookings and reminders. Everything else stays between you and your client, like always.</p>
+      <div class="trust-grid">
+        <div class="trust-card reveal"><h3 data-i18n="trust1_t">Your number, your app</h3><p data-i18n="trust1_d">No migrating clients or switching WhatsApp apps.</p></div>
+        <div class="trust-card reveal"><h3 data-i18n="trust2_t">Zero access to personal chats</h3><p data-i18n="trust2_d">The bot only reads what's needed to book or remind.</p></div>
+        <div class="trust-card reveal"><h3 data-i18n="trust3_t">You decide what's automated</h3><p data-i18n="trust3_d">Turn each feature on or off whenever you want.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT WE NEED -->
+  <section class="section-on-paper">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="req_eyebrow">GETTING STARTED</p>
+      <h2 style="font-size:34px;max-width:560px;" data-i18n="req_h2">We only need two things from you.</h2>
+      <div class="req-grid">
+        <div class="req-card reveal">
+          <div class="req-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8C8.1 13.7 10.3 15.9 13.2 17.4L15.4 15.2C15.7 14.9 16.1 14.8 16.5 14.95C17.7 15.4 19 15.65 20.3 15.7C20.9 15.7 21.3 16.15 21.3 16.7V20.2C21.3 20.75 20.85 21.2 20.3 21.2C10.6 21.2 2.8 13.4 2.8 3.7C2.8 3.15 3.25 2.7 3.8 2.7H7.3C7.85 2.7 8.3 3.1 8.3 3.7C8.35 5 8.6 6.3 9.05 7.5C9.2 7.9 9.1 8.3 8.8 8.6L6.6 10.8Z" fill="#1B6FFF"/></svg></div>
+          <h3 data-i18n="req1_t">A WhatsApp number dedicated to the bot</h3>
+          <p data-i18n="req1_d">It can be a new number — it doesn't replace the one you already use to talk with your clients.</p>
+        </div>
+        <div class="req-card reveal">
+          <div class="req-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14.5 2.5H7C5.9 2.5 5 3.4 5 4.5V19.5C5 20.6 5.9 21.5 7 21.5H17C18.1 21.5 19 20.6 19 19.5V7L14.5 2.5Z" stroke="#1B6FFF" stroke-width="1.5"/><path d="M14.5 2.5V7H19" stroke="#1B6FFF" stroke-width="1.5"/><path d="M9 14L15.5 14M9 17H13" stroke="#1B6FFF" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          <h3 data-i18n="req2_t">A simple privacy policy page</h3>
+          <p><span data-i18n="req2_d">Required by WhatsApp to activate the system. Don't have one?</span> <a href="#privacy" data-i18n="req2_link">We already drafted a ready-to-use one for you →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="price_eyebrow">REMINDER — PRICING</p>
+      <h2 style="font-size:34px;" data-i18n="price_h2">Reference pricing for the first pilot case.</h2>
+      <div class="price-grid">
+        <div class="price-card light reveal">
+          <div class="plan-name" data-i18n="price_basic">Basic</div>
+          <div class="price-amt">€300</div>
+          <div class="price-sub" data-i18n="price_setup">one-time setup</div>
+          <div class="price-divider"></div>
+          <div class="price-mo">€80/mo</div>
+          <div class="price-desc" data-i18n="price_basic_desc">WhatsApp reminder before the appointment.</div>
+        </div>
+        <div class="price-card dark reveal">
+          <div class="plan-name" data-i18n="price_interactive">Interactive</div>
+          <div class="price-amt">€400</div>
+          <div class="price-sub" data-i18n="price_setup">one-time setup</div>
+          <div class="price-divider"></div>
+          <div class="price-mo">€100/mo</div>
+          <div class="price-desc" data-i18n="price_int_desc">+ client confirmation and owner notification.</div>
+        </div>
+      </div>
+      <p class="price-foot" data-i18n="price_foot">Reference prices for a typical pilot — they can vary based on what your project actually needs. The setup fee covers our work even if you stop after month two or three. Messaging and hosting are billed separately, directly by the provider — no surprises, no markup.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section-on-paper" id="faq">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="faq_eyebrow">QUESTIONS</p>
+      <h2 style="font-size:34px;" data-i18n="faq_h2">Frequently asked</h2>
+      <div class="faq-list">
+        <details>
+          <summary data-i18n="faq1_q">Do I need to change my WhatsApp number?</summary>
+          <p data-i18n="faq1_a">No. The bot uses its own dedicated number — your personal or business number stays exactly as it is.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq2_q">How long does setup take?</summary>
+          <p data-i18n="faq2_a">Typically about a week, once we have access to your calendar and your dedicated number ready.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq3_q">Can I cancel anytime?</summary>
+          <p data-i18n="faq3_a">Yes. There's no long-term contract — the setup fee covers our work even if you stop after a couple of months.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq4_q">Is my clients' data safe?</summary>
+          <p><span data-i18n="faq4_a">The bot only reads what's needed to book and remind — it never touches your personal conversations. See our</span> <a href="#privacy" data-i18n="faq4_link">privacy policy</a>.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq5_q">What if messaging or AI costs change?</summary>
+          <p data-i18n="faq5_a">Those are billed directly by the provider (WhatsApp, hosting), separately and transparently — we never mark them up.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="wrap">
+      <p class="eyebrow" data-i18n="contact_eyebrow">LET'S TALK</p>
+      <h2 style="font-size:34px;max-width:560px;" data-i18n="contact_h2">Let's talk about your calendar.</h2>
+      <p class="lede" data-i18n="contact_lede">Tell us how many appointments you lose a month — we'll work out together if it's worth it.</p>
+
+      <div class="contact-grid">
+        <form action="mailto:jozu@versodata.tech" method="post" enctype="text/plain">
+          <div class="field"><label for="cname" data-i18n="form_name">Name</label><input id="cname" name="Name" type="text" required></div>
+          <div class="field"><label for="cmail" data-i18n="form_contact">WhatsApp or email</label><input id="cmail" name="Contact" type="text" required></div>
+          <div class="field"><label for="cbiz" data-i18n="form_biz">What's your business?</label><input id="cbiz" name="Business" type="text"></div>
+          <div class="field"><label for="cmsg" data-i18n="form_msg">A few words about your case</label><textarea id="cmsg" name="Message"></textarea></div>
+          <button type="submit" class="btn btn-primary" data-i18n="form_send">Send message</button>
+          <p class="contact-note" data-i18n="form_note">This opens your email app. Prefer something faster? Use the WhatsApp button above.</p>
+        </form>
+
+        <div class="contact-side">
+          <h3 data-i18n="contact_side_h">Prefer WhatsApp?</h3>
+          <p data-i18n="contact_side_p">Fastest way to reach us — usually a reply within the day.</p>
+          <a href="https://wa.me/393518433102?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Reminder" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="hero_cta">Message us on WhatsApp →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- PRIVACY VIEW -->
+<div id="privacy-view" hidden>
+  <div class="wrap legal">
+    <span class="updated" data-i18n="priv_updated">LAST UPDATED — JUNE 2026</span>
+    <h1 data-i18n="priv_h1">Privacy Policy</h1>
+    <div class="legal-banner">
+      <span data-i18n="priv_banner">This is a starter template provided to help activate WhatsApp Business messaging. It is not legal advice — please have it reviewed for your jurisdiction before relying on it for a real business.</span>
+    </div>
+
+    <h2 data-i18n="priv_who_h">Who we are</h2>
+    <p><span data-i18n="priv_who_p">This bot is operated by the business you are messaging, built and maintained by Versodata Studio. For questions about this policy, contact</span> <a href="mailto:jozu@versodata.tech">jozu@versodata.tech</a>.</p>
+
+    <h2 data-i18n="priv_collect_h">What we collect</h2>
+    <ul>
+      <li data-i18n="priv_collect_l1">Your phone number and name, as provided when booking an appointment.</li>
+      <li data-i18n="priv_collect_l2">Appointment date, time, and service, as needed to send your reminder.</li>
+    </ul>
+
+    <h2 data-i18n="priv_use_h">How we use it</h2>
+    <p data-i18n="priv_use_p">Solely to send appointment reminders and process confirmations or cancellations on behalf of the business you booked with. We do not use your data for advertising.</p>
+
+    <h2 data-i18n="priv_dont_h">What we don't do</h2>
+    <p data-i18n="priv_dont_p">We don't read or store your personal WhatsApp conversations beyond messages related to your booking. We don't sell your data, and we don't share it beyond the providers strictly needed to operate the service (the messaging platform and the calendar system).</p>
+
+    <h2 data-i18n="priv_ret_h">Data retention</h2>
+    <p data-i18n="priv_ret_p">We keep your booking information only as long as needed to manage your appointment history with the business.</p>
+
+    <h2 data-i18n="priv_rights_h">Your rights</h2>
+    <p><span data-i18n="priv_rights_p">You can request access to, correction of, or deletion of your data at any time by contacting the business directly or</span> <a href="mailto:jozu@versodata.tech">jozu@versodata.tech</a>.</p>
+
+    <a href="#home" class="back-link" data-i18n="priv_back">← Back to home</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap footer-row">
+    <div>Versodata Studio — © 2026</div>
+    <div class="footer-links">
+      <a href="#home" data-i18n="footer_home">Home</a>
+      <a href="#pricing" data-i18n="footer_pricing">Pricing</a>
+      <a href="#privacy" data-i18n="footer_privacy">Privacy Policy</a>
+      <a href="mailto:jozu@versodata.tech">jozu@versodata.tech</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Sticky header background on scroll
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 12);
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Hash-based privacy view toggle
+  function showView() {
+    const isPrivacy = location.hash === '#privacy';
+    document.getElementById('main-view').hidden = isPrivacy;
+    document.getElementById('privacy-view').hidden = !isPrivacy;
+    document.getElementById('siteHeader').hidden = isPrivacy;
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', showView);
+  showView();
+
+  // Hero phone conversation sequence
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const b1 = document.getElementById('b1'), b2 = document.getElementById('b2'),
+        b3 = document.getElementById('b3'), typing1 = document.getElementById('typing1'),
+        qr = document.getElementById('qr'), qrConfirm = document.getElementById('qrConfirm');
+
+  function resetPhone(){
+    [b1,b2,b3].forEach(b => b.classList.remove('show'));
+    typing1.classList.remove('show');
+    qr.classList.remove('show');
+    qrConfirm.classList.remove('tapped');
+  }
+
+  function playSequence(){
+    resetPhone();
+    if (reduceMotion) { [b1,b2,b3].forEach(b => b.classList.add('show')); return; }
+    setTimeout(()=> b1.classList.add('show'), 300);
+    setTimeout(()=> qr.classList.add('show'), 1100);
+    setTimeout(()=> qrConfirm.classList.add('tapped'), 2600);
+    setTimeout(()=> { qr.classList.remove('show'); b2.classList.add('show'); }, 3000);
+    setTimeout(()=> typing1.classList.add('show'), 3500);
+    setTimeout(()=> { typing1.classList.remove('show'); b3.classList.add('show'); }, 4500);
+  }
+
+  playSequence();
+  if (!reduceMotion) setInterval(playSequence, 8000);
+
+  // ---------------- i18n ----------------
+  const translations = {
+    es: {
+      nav_how: "Cómo funciona", nav_pricing: "Precios", nav_faq: "Preguntas", nav_cta: "Escríbenos",
+      hero_eyebrow: "RECORDATORIOS POR WHATSAPP PARA AGENDAS OCUPADAS",
+      hero_h1: "Deja de perder citas<br>por olvido.",
+      hero_lede: "Versodata Reminder le escribe a tus clientes por WhatsApp antes de su cita — así una visita olvidada no se convierte en una silla vacía.",
+      hero_cta: "Escríbenos por WhatsApp →", hero_cta2: "Ver precios",
+      phone_name: "Clínica Dr. Rossi", phone_status: "● Recordatorio enviado",
+      chat_b1: "Hola Sofía 👋 Recordatorio: tu cita es mañana a las 10:00 con el Dr. Rossi.",
+      chat_confirm: "✅ Confirmar", chat_reschedule: "Reprogramar",
+      chat_b3: "Perfecto, ¡nos vemos mañana a las 10:00! ✅",
+      prob_eyebrow: "EL COSTO DE UN NO-SHOW",
+      prob_h2: "¿Cuántas citas pierdes al mes por olvido?",
+      prob_lede: "No es mala fe. Es olvido — y en negocios con mucho movimiento, eso se traduce en dinero real.",
+      prob_stat1: "8 ausencias / mes", prob_stat2: "a 50€ perdidos por cita no asistida",
+      prob_stat4: "casi 5.000€ al año, que se van solos",
+      prob_who1_t: "Clínicas dentales y médicas", prob_who1_d: "Slot caro, reservado con semanas de anticipación.",
+      prob_who2_t: "Estética y fisioterapia multi-profesional", prob_who2_d: "Volumen alto, agenda cada vez más impersonal.",
+      prob_who3_t: "Autoescuelas, tatuajes, laboratorios", prob_who3_d: "Sin depósito previo que frene la ausencia.",
+      how_eyebrow: "CÓMO FUNCIONA",
+      how_h2: "Tú sigues agendando como siempre.",
+      how1_t: "Lee tu agenda", how1_d: "Toma la cita que ya está guardada en tu calendario — nada nuevo que escribir.",
+      how2_t: "Envía el recordatorio por WhatsApp", how2_d: "Le escribe al cliente antes de la cita, en su propio idioma.",
+      how3_t: "Confirma o cancela", how3_d: "El cliente responde, y si cancela, lo sabes a tiempo para llenar el hueco.",
+      how_note: "Nunca toca tu WhatsApp personal ni lee tus conversaciones privadas — solo gestiona recordatorios.",
+      cmp_eyebrow: "¿Y POR QUÉ NO SOLO GOOGLE CALENDAR?",
+      cmp_h2: "Google ya recuerda citas. ¿Entonces por qué esto?",
+      cmp_col1_h: "Google Calendar",
+      cmp_col1_r1: "Avisa al dueño, no al cliente", cmp_col1_r2: "Es un aviso de un solo sentido, sin respuesta",
+      cmp_col1_r3: "El cliente no puede confirmar ni cancelar",
+      cmp_col2_h: "Versodata Reminder",
+      cmp_col2_r1: "Avisa al cliente, por WhatsApp", cmp_col2_r2: "El cliente confirma o cancela",
+      cmp_col2_r3: "Una cancelación te da tiempo para llenar el hueco",
+      cmp_foot: "Conserva tu número y la app que ya usas — esto opera encima, sin migrar nada.",
+      trust_eyebrow: "PRIVACIDAD", trust_h2: "Tus conversaciones siguen siendo tuyas.",
+      trust_lede: "El sistema solo gestiona reservas y recordatorios. Todo lo demás queda entre tú y tu cliente, como siempre.",
+      trust1_t: "Tu número, tu app", trust1_d: "No migras clientela ni cambias de app de WhatsApp.",
+      trust2_t: "Cero acceso a chats personales", trust2_d: "El bot solo lee lo necesario para agendar o recordar.",
+      trust3_t: "Tú decides qué se automatiza", trust3_d: "Activa o apaga cada función cuando quieras.",
+      req_eyebrow: "PARA EMPEZAR", req_h2: "Solo necesitamos dos cosas de ti.",
+      req1_t: "Un número de WhatsApp dedicado al bot", req1_d: "Puede ser nuevo — no reemplaza el que ya usas para hablar con tus clientes.",
+      req2_t: "Una página simple de política de privacidad",
+      req2_d: "Es un requisito de WhatsApp para activar el sistema. ¿No tienes una?",
+      req2_link: "Ya dejamos una lista para usar →",
+      price_eyebrow: "REMINDER — PRECIOS", price_h2: "Precios de referencia para el primer caso piloto.",
+      price_basic: "Básico", price_setup: "setup único", price_basic_desc: "Recordatorio por WhatsApp antes de la cita.",
+      price_interactive: "Interactivo", price_int_desc: "+ confirmación del cliente y notificación al dueño.",
+      price_foot: "Precios de referencia para un piloto típico — pueden variar según lo que tu proyecto realmente necesite. El setup cubre nuestro trabajo aunque dejes de usarlo en el mes 2 o 3. La mensajería y el hosting se facturan aparte, directo del proveedor — sin sorpresas, sin margen nuestro.",
+      faq_eyebrow: "PREGUNTAS", faq_h2: "Preguntas frecuentes",
+      faq1_q: "¿Tengo que cambiar mi número de WhatsApp?", faq1_a: "No. El bot usa su propio número dedicado — tu número personal o de negocio queda exactamente igual.",
+      faq2_q: "¿Cuánto toma la instalación?", faq2_a: "Normalmente una semana, una vez que tengamos acceso a tu calendario y tu número dedicado listo.",
+      faq3_q: "¿Puedo cancelar en cualquier momento?", faq3_a: "Sí. No hay contrato de permanencia — el setup cubre nuestro trabajo aunque dejes de usarlo después de un par de meses.",
+      faq4_q: "¿Están seguros los datos de mis clientes?",
+      faq4_a: "El bot solo lee lo necesario para agendar y recordar — nunca toca tus conversaciones personales. Mira nuestra",
+      faq4_link: "política de privacidad",
+      faq5_q: "¿Y si cambian los costos de mensajería o IA?", faq5_a: "Esos se facturan directo del proveedor (WhatsApp, hosting), por separado y de forma transparente — nunca les ponemos margen.",
+      contact_eyebrow: "HABLEMOS", contact_h2: "Hablemos de tu agenda.",
+      contact_lede: "Cuéntanos cuántas citas pierdes al mes — calculamos juntos si vale la pena.",
+      form_name: "Nombre", form_contact: "WhatsApp o email", form_biz: "¿Cuál es tu negocio?",
+      form_msg: "Unas palabras sobre tu caso", form_send: "Enviar mensaje",
+      form_note: "Esto abre tu app de correo. ¿Prefieres algo más rápido? Usa el botón de WhatsApp arriba.",
+      contact_side_h: "¿Prefieres WhatsApp?", contact_side_p: "La forma más rápida de contactarnos — normalmente respondemos el mismo día.",
+      priv_updated: "ÚLTIMA ACTUALIZACIÓN — JUNIO 2026", priv_h1: "Política de Privacidad",
+      priv_banner: "Esta es una plantilla inicial para ayudar a activar la mensajería de WhatsApp Business. No es asesoría legal — hazla revisar para tu jurisdicción antes de usarla en un negocio real.",
+      priv_who_h: "Quiénes somos",
+      priv_who_p: "Este bot es operado por el negocio con el que estás conversando, construido y mantenido por Versodata Studio. Para preguntas sobre esta política, contacta",
+      priv_collect_h: "Qué recolectamos",
+      priv_collect_l1: "Tu número de teléfono y nombre, según lo proporcionado al reservar una cita.",
+      priv_collect_l2: "Fecha, hora y servicio de la cita, según lo necesario para enviarte el recordatorio.",
+      priv_use_h: "Cómo lo usamos",
+      priv_use_p: "Únicamente para enviar recordatorios de citas y procesar confirmaciones o cancelaciones en nombre del negocio con el que reservaste. No usamos tus datos para publicidad.",
+      priv_dont_h: "Qué no hacemos",
+      priv_dont_p: "No leemos ni guardamos tus conversaciones personales de WhatsApp más allá de los mensajes relacionados con tu reserva. No vendemos tus datos, ni los compartimos más allá de los proveedores estrictamente necesarios para operar el servicio (la plataforma de mensajería y el sistema de calendario).",
+      priv_ret_h: "Retención de datos",
+      priv_ret_p: "Guardamos tu información de reserva solo el tiempo necesario para gestionar tu historial de citas con el negocio.",
+      priv_rights_h: "Tus derechos",
+      priv_rights_p: "Puedes solicitar acceso, corrección o eliminación de tus datos en cualquier momento contactando directamente al negocio o a",
+      priv_back: "← Volver al inicio",
+      footer_home: "Inicio", footer_pricing: "Precios", footer_privacy: "Política de Privacidad",
+    },
+    it: {
+      nav_how: "Come funziona", nav_pricing: "Prezzi", nav_faq: "Domande", nav_cta: "Scrivici",
+      hero_eyebrow: "PROMEMORIA WHATSAPP PER AGENDE PIENE",
+      hero_h1: "Basta perdere appuntamenti<br>per dimenticanza.",
+      hero_lede: "Versodata Reminder scrive ai tuoi clienti su WhatsApp prima del loro appuntamento — così una visita dimenticata non diventa una sedia vuota.",
+      hero_cta: "Scrivici su WhatsApp →", hero_cta2: "Vedi i prezzi",
+      phone_name: "Studio Dr. Rossi", phone_status: "● Promemoria inviato",
+      chat_b1: "Ciao Sofia 👋 Promemoria: il tuo appuntamento è domani alle 10:00 con il Dr. Rossi.",
+      chat_confirm: "✅ Confermo", chat_reschedule: "Sposta",
+      chat_b3: "Perfetto, ci vediamo domani alle 10:00! ✅",
+      prob_eyebrow: "IL COSTO DI UN'ASSENZA",
+      prob_h2: "Quanti appuntamenti perdi al mese per dimenticanza?",
+      prob_lede: "Non è malafede. È dimenticanza — e in attività con molti clienti, questo si traduce in soldi veri.",
+      prob_stat1: "8 assenze / mese", prob_stat2: "a 50€ persi per appuntamento mancato",
+      prob_stat4: "quasi 5.000€ all'anno, persi senza saperlo",
+      prob_who1_t: "Studi dentistici e medici", prob_who1_d: "Slot costoso, prenotato con settimane di anticipo.",
+      prob_who2_t: "Centri estetici e fisioterapia multi-professionista", prob_who2_d: "Alto volume, agenda sempre più impersonale.",
+      prob_who3_t: "Autoscuole, tatuaggi, laboratori", prob_who3_d: "Senza acconto che scoraggi l'assenza.",
+      how_eyebrow: "COME FUNZIONA",
+      how_h2: "Tu continui a prendere appuntamenti come sempre.",
+      how1_t: "Legge la tua agenda", how1_d: "Prende l'appuntamento già salvato nel tuo calendario — niente da inserire.",
+      how2_t: "Invia il promemoria su WhatsApp", how2_d: "Scrive al cliente prima dell'appuntamento, nella sua lingua.",
+      how3_t: "Conferma o cancella", how3_d: "Il cliente risponde, e se cancella, lo sai in tempo per riempire lo slot.",
+      how_note: "Non tocca mai il tuo WhatsApp personale né legge le tue chat private — gestisce solo i promemoria.",
+      cmp_eyebrow: "PERCHÉ NON SOLO GOOGLE CALENDAR?",
+      cmp_h2: "Google avvisa già le persone. Allora perché questo?",
+      cmp_col1_h: "Google Calendar",
+      cmp_col1_r1: "Avvisa il titolare, non il cliente", cmp_col1_r2: "È un avviso a senso unico, senza risposta",
+      cmp_col1_r3: "Il cliente non può confermare né cancellare",
+      cmp_col2_h: "Versodata Reminder",
+      cmp_col2_r1: "Avvisa il cliente, via WhatsApp", cmp_col2_r2: "Il cliente conferma o cancella",
+      cmp_col2_r3: "Una cancellazione ti dà il tempo di riempire lo slot",
+      cmp_foot: "Mantieni il tuo numero e l'app che usi già — questo opera sopra, senza migrare nulla.",
+      trust_eyebrow: "PRIVACY", trust_h2: "Le tue conversazioni restano tue.",
+      trust_lede: "Il sistema gestisce solo prenotazioni e promemoria. Il resto resta tra te e il tuo cliente, come sempre.",
+      trust1_t: "Il tuo numero, la tua app", trust1_d: "Non migri i clienti né cambi app di WhatsApp.",
+      trust2_t: "Zero accesso alle chat personali", trust2_d: "Il bot legge solo ciò che serve per prenotare o ricordare.",
+      trust3_t: "Decidi tu cosa automatizzare", trust3_d: "Attivi o spegni ogni funzione quando vuoi.",
+      req_eyebrow: "PER INIZIARE", req_h2: "Ci servono solo due cose da te.",
+      req1_t: "Un numero WhatsApp dedicato al bot", req1_d: "Può essere nuovo — non sostituisce quello che usi già per parlare con i tuoi clienti.",
+      req2_t: "Una semplice pagina di privacy policy",
+      req2_d: "È un requisito di WhatsApp per attivare il sistema. Non ne hai una?",
+      req2_link: "Ne abbiamo già pronta una per te →",
+      price_eyebrow: "REMINDER — PREZZI", price_h2: "Prezzi di riferimento per il primo caso pilota.",
+      price_basic: "Base", price_setup: "setup unico", price_basic_desc: "Promemoria WhatsApp prima dell'appuntamento.",
+      price_interactive: "Interattivo", price_int_desc: "+ conferma del cliente e notifica al titolare.",
+      price_foot: "Prezzi di riferimento per un pilota tipico — possono variare in base a ciò che il tuo progetto richiede davvero. Il setup copre il nostro lavoro anche se smetti di usarlo al mese 2 o 3. Messaggistica e hosting sono fatturati separatamente, direttamente dal fornitore — senza sorprese, senza margine nostro.",
+      faq_eyebrow: "DOMANDE", faq_h2: "Domande frequenti",
+      faq1_q: "Devo cambiare il mio numero WhatsApp?", faq1_a: "No. Il bot usa un numero dedicato — il tuo numero personale o aziendale resta esattamente com'è.",
+      faq2_q: "Quanto tempo richiede l'attivazione?", faq2_a: "Di solito circa una settimana, una volta avuto accesso al tuo calendario e pronto il numero dedicato.",
+      faq3_q: "Posso cancellare in qualsiasi momento?", faq3_a: "Sì. Nessun contratto a lungo termine — il setup copre il nostro lavoro anche se smetti dopo un paio di mesi.",
+      faq4_q: "I dati dei miei clienti sono al sicuro?",
+      faq4_a: "Il bot legge solo ciò che serve per prenotare e ricordare — non tocca mai le tue conversazioni personali. Guarda la nostra",
+      faq4_link: "privacy policy",
+      faq5_q: "E se cambiano i costi di messaggistica o IA?", faq5_a: "Sono fatturati direttamente dal fornitore (WhatsApp, hosting), separatamente e in modo trasparente — non li aumentiamo mai.",
+      contact_eyebrow: "PARLIAMONE", contact_h2: "Parliamo della tua agenda.",
+      contact_lede: "Dicci quanti appuntamenti perdi al mese — calcoliamo insieme se ne vale la pena.",
+      form_name: "Nome", form_contact: "WhatsApp o email", form_biz: "Qual è la tua attività?",
+      form_msg: "Qualche parola sul tuo caso", form_send: "Invia messaggio",
+      form_note: "Questo apre la tua app email. Preferisci qualcosa più rapido? Usa il pulsante WhatsApp qui sopra.",
+      contact_side_h: "Preferisci WhatsApp?", contact_side_p: "Il modo più rapido per contattarci — di solito rispondiamo lo stesso giorno.",
+      priv_updated: "ULTIMO AGGIORNAMENTO — GIUGNO 2026", priv_h1: "Privacy Policy",
+      priv_banner: "Questo è un modello iniziale fornito per attivare la messaggistica di WhatsApp Business. Non è una consulenza legale — fallo revisionare per la tua giurisdizione prima di usarlo per un'attività reale.",
+      priv_who_h: "Chi siamo",
+      priv_who_p: "Questo bot è gestito dall'attività con cui stai scrivendo, costruito e mantenuto da Versodata Studio. Per domande su questa policy, contatta",
+      priv_collect_h: "Cosa raccogliamo",
+      priv_collect_l1: "Il tuo numero di telefono e nome, come fornito al momento della prenotazione.",
+      priv_collect_l2: "Data, ora e servizio dell'appuntamento, come necessario per inviarti il promemoria.",
+      priv_use_h: "Come lo usiamo",
+      priv_use_p: "Solo per inviare promemoria di appuntamenti ed elaborare conferme o cancellazioni per conto dell'attività con cui hai prenotato. Non usiamo i tuoi dati per la pubblicità.",
+      priv_dont_h: "Cosa non facciamo",
+      priv_dont_p: "Non leggiamo né conserviamo le tue conversazioni WhatsApp personali oltre ai messaggi relativi alla tua prenotazione. Non vendiamo i tuoi dati, né li condividiamo oltre i fornitori strettamente necessari per gestire il servizio (la piattaforma di messaggistica e il sistema di calendario).",
+      priv_ret_h: "Conservazione dei dati",
+      priv_ret_p: "Conserviamo le tue informazioni di prenotazione solo per il tempo necessario a gestire la tua cronologia appuntamenti con l'attività.",
+      priv_rights_h: "I tuoi diritti",
+      priv_rights_p: "Puoi richiedere l'accesso, la correzione o la cancellazione dei tuoi dati in qualsiasi momento contattando direttamente l'attività o",
+      priv_back: "← Torna alla home",
+      footer_home: "Home", footer_pricing: "Prezzi", footer_privacy: "Privacy Policy",
+    }
+  };
+
+  function setLang(lang){
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+    document.getElementById('htmlRoot').lang = lang;
+    if (lang === 'en') {
+      // English is the literal markup already in the DOM, nothing stored — reload not needed since we never overwrote it... 
+      // but if user switched away and back, restore from a cached copy taken on first run.
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        if (el.dataset.enCache !== undefined) el.innerHTML = el.dataset.enCache;
+      });
+      return;
+    }
+    const dict = translations[lang];
+    if (!dict) return;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      if (el.dataset.enCache === undefined) el.dataset.enCache = el.innerHTML;
+      const key = el.dataset.i18n;
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+  }
+</script>
+
+</body>
+</html>
